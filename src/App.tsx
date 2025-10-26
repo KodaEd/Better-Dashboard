@@ -7,19 +7,21 @@ import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <div className="bg-black text-white w-full h-full">
+    <div className="bg-black text-white w-full h-full p-5">
       <Header />
-      <Switch>
-        <Route path="/">
-          <Home />
-        </Route>
-        <Route path="/settings">
-          <Settings />
-        </Route>
-        <Route>
-          <NotFound />
-        </Route>
-      </Switch>
+      <div className="mt-5">
+        <Switch>
+          <Route path="/">
+            <Home />
+          </Route>
+          <Route path="/settings">
+            <Settings />
+          </Route>
+          <Route>
+            <NotFound />
+          </Route>
+        </Switch>
+      </div>
     </div>
   );
 }
