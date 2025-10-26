@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { H1, H3 } from "@/components/ui/typography";
 import { load } from "@tauri-apps/plugin-store";
@@ -10,11 +11,18 @@ export default function Settings() {
     store.set("apiKey", apiKey);
   };
 
+  const getApiKey = async () => {
+    const store = await load("settings.json");
+    const apiKey = await store.get("apiKey") || "";
+    console.log(apiKey);
+  };
+
   return (
     <div>
       <div className="flex flex-col gap-2 w-1/2">
         <H3>Api Key:</H3>
         <PasswordInput onBlur={saveApiKey} placeholder="Enter your password" />
+        <Button onClick={getApiKey}>Log</Button>
       </div>
     </div>
   );
