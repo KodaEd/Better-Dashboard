@@ -1,9 +1,9 @@
 import { Route, Switch } from "wouter";
 import "./App.css";
 import Header from "./components/Header";
-import Settings from "./pages/Settings";
-import Home from "./pages/Home";
-import NotFound from "./pages/NotFound";
+import Settings from "./pages/SettingsPage";
+import Home from "./pages/HomePage";
+import NotFound from "./pages/NotFoundPage";
 
 function App() {
   return (
