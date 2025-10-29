@@ -44,6 +44,7 @@ function ApiKeyInput() {
 
 export default function Settings() {
   const [domain, setDomain] = useState("");
+  const [email, setEmail] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [queryPolling, setQueryPolling] = useState("");
   const [enablePolling, setEnablePolling] = useState(false);
@@ -54,6 +55,14 @@ export default function Settings() {
     const value = event.target.value;
     const store = await load("settings.json");
     await store.set("domain", value);
+  };
+
+  const handleEmailBlur = async (
+    event: React.FocusEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value;
+    const store = await load("settings.json");
+    await store.set("email", value);
   };
 
   const handleSearchQueryBlur = async (
@@ -93,6 +102,15 @@ export default function Settings() {
           onChange={(e) => setDomain(e.target.value)}
           onBlur={handleDomainBlur}
           placeholder="e.g., yourcompany.atlassian.net"
+        />
+
+        <H3>Email:</H3>
+        <Input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={handleEmailBlur}
+          placeholder="Enter your email"
         />
 
         <H3>Search Query:</H3>
