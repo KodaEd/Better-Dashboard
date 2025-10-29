@@ -43,9 +43,18 @@ function ApiKeyInput() {
 }
 
 export default function Settings() {
+  const [domain, setDomain] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [queryPolling, setQueryPolling] = useState("");
   const [enablePolling, setEnablePolling] = useState(false);
+
+  const handleDomainBlur = async (
+    event: React.FocusEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value;
+    const store = await load("settings.json");
+    await store.set("domain", value);
+  };
 
   const handleSearchQueryBlur = async (
     event: React.FocusEvent<HTMLTextAreaElement>
@@ -76,6 +85,15 @@ export default function Settings() {
         <Suspense fallback={<Spinner className="size-6" />}>
           <ApiKeyInput />
         </Suspense>
+
+        <H3>Domain:</H3>
+        <Input
+          type="text"
+          value={domain}
+          onChange={(e) => setDomain(e.target.value)}
+          onBlur={handleDomainBlur}
+          placeholder="e.g., yourcompany.atlassian.net"
+        />
 
         <H3>Search Query:</H3>
         <Textarea
