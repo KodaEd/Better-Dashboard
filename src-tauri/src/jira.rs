@@ -13,19 +13,29 @@ fn get_store_value(
 
 #[tauri::command]
 pub async fn get_jira_tickets(app: AppHandle) -> Result<(), String> {
-    let store = app.store("store.json").map_err(|e| e.to_string())?;
+    let store = app.store("settings.json").map_err(|e| e.to_string())?;
+
+    println!("{:?}", store.entries());
 
     let domain = get_store_value(&store, "domain")?;
     let email = get_store_value(&store, "email")?;
     let api_key = get_store_value(&store, "apiKey")?;
-    let query = get_store_value(&store, "query")?;
+    let search_query = get_store_value(&store, "searchQuery")?;
 
     let client = reqwest::Client::new();
     let response = client
-        .get(format!("https://{}.atlassian.net/rest/api/3/search/jql?jql={}", domain, query))
-        .header("Authorization", format!("Basic {}:{}", email, api_key))
-        .send().await;
+        .get(format!("https://{}.atlassian.net/rest/api/3/search/jql", domain))
+        .query(&[("jql", "assignee = currentUser() and status not in (Done, Closed, Resolved) and resolution = Unresolved")])
+        .query(&[("fields", "*all")])
+        .basic_auth(email, Some(api_key))
+        // .header("Authorization", format!("Basic {}:{}", email, api_key))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
 
-    println!("{:?}", response);
+    let json: serde_json::Value = response.json().await.map_err(|e| e.to_string())?;
+    let pretty_json = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
+    
+    println!("{}", pretty_json);
     Ok(())
 }

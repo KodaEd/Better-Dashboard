@@ -14,6 +14,36 @@ const fetchApiKey = async () => {
   return apiKey as string;
 };
 
+const fetchDomain = async () => {
+  const store = await load("settings.json");
+  const domain = (await store.get("domain")) || "";
+  return domain as string;
+};
+
+const fetchEmail = async () => {
+  const store = await load("settings.json");
+  const email = (await store.get("email")) || "";
+  return email as string;
+};
+
+const fetchSearchQuery = async () => {
+  const store = await load("settings.json");
+  const searchQuery = (await store.get("searchQuery")) || "";
+  return searchQuery as string;
+};
+
+const fetchQueryPolling = async () => {
+  const store = await load("settings.json");
+  const queryPolling = (await store.get("queryPolling")) || "";
+  return queryPolling as string;
+};
+
+const fetchEnablePolling = async () => {
+  const store = await load("settings.json");
+  const enablePolling = (await store.get("enablePolling")) || false;
+  return enablePolling as boolean;
+};
+
 function ApiKeyInput() {
   const { data: apiKey, mutate } = useSWR("apiKey", fetchApiKey, {
     suspense: true,
@@ -42,51 +72,141 @@ function ApiKeyInput() {
   );
 }
 
-export default function Settings() {
-  const [domain, setDomain] = useState("");
-  const [email, setEmail] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [queryPolling, setQueryPolling] = useState("");
-  const [enablePolling, setEnablePolling] = useState(false);
+function DomainInput() {
+  const { data: domain, mutate } = useSWR("domain", fetchDomain, {
+    suspense: true,
+  });
 
-  const handleDomainBlur = async (
-    event: React.FocusEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value;
+  const [value, setValue] = useState(domain || "");
+
+  const handleBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
     const store = await load("settings.json");
-    await store.set("domain", value);
+    await store.set("domain", newValue);
+    await mutate();
   };
 
-  const handleEmailBlur = async (
-    event: React.FocusEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value;
-    const store = await load("settings.json");
-    await store.set("email", value);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
   };
 
-  const handleSearchQueryBlur = async (
-    event: React.FocusEvent<HTMLTextAreaElement>
-  ) => {
-    const value = event.target.value;
+  return (
+    <Input
+      type="text"
+      value={value}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder="e.g., yourcompany.atlassian.net"
+    />
+  );
+}
+
+function EmailInput() {
+  const { data: email, mutate } = useSWR("email", fetchEmail, {
+    suspense: true,
+  });
+
+  const [value, setValue] = useState(email || "");
+
+  const handleBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
     const store = await load("settings.json");
-    await store.set("searchQuery", value);
+    await store.set("email", newValue);
+    await mutate();
   };
 
-  const handleQueryPollingBlur = async (
-    event: React.FocusEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value;
-    const store = await load("settings.json");
-    await store.set("queryPolling", value);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
   };
 
-  const handleEnablePollingChange = async (checked: boolean) => {
-    setEnablePolling(checked);
+  return (
+    <Input
+      type="email"
+      value={value}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder="Enter your email"
+    />
+  );
+}
+
+function SearchQueryInput() {
+  const { data: searchQuery, mutate } = useSWR("searchQuery", fetchSearchQuery, {
+    suspense: true,
+  });
+
+  const [value, setValue] = useState(searchQuery || "");
+
+  const handleBlur = async (event: React.FocusEvent<HTMLTextAreaElement>) => {
+    const newValue = event.target.value;
+    const store = await load("settings.json");
+    await store.set("searchQuery", newValue);
+    await mutate();
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setValue(event.target.value);
+  };
+
+  return (
+    <Textarea
+      value={value}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder="Enter your search query"
+    />
+  );
+}
+
+function QueryPollingInput() {
+  const { data: queryPolling, mutate } = useSWR("queryPolling", fetchQueryPolling, {
+    suspense: true,
+  });
+
+  const [value, setValue] = useState(queryPolling || "");
+
+  const handleBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    const store = await load("settings.json");
+    await store.set("queryPolling", newValue);
+    await mutate();
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
+  return (
+    <Input
+      type="number"
+      value={value}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder="Enter polling interval in seconds"
+    />
+  );
+}
+
+function EnablePollingCheckbox() {
+  const { data: enablePolling, mutate } = useSWR("enablePolling", fetchEnablePolling, {
+    suspense: true,
+  });
+
+  const handleChange = async (checked: boolean) => {
     const store = await load("settings.json");
     await store.set("enablePolling", checked);
+    await mutate();
   };
 
+  return (
+    <Checkbox
+      checked={enablePolling}
+      onCheckedChange={handleChange}
+    />
+  );
+}
+
+export default function Settings() {
   return (
     <div>
       <div className="flex flex-col gap-2 w-1/2">
@@ -96,45 +216,29 @@ export default function Settings() {
         </Suspense>
 
         <H3>Domain:</H3>
-        <Input
-          type="text"
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          onBlur={handleDomainBlur}
-          placeholder="e.g., yourcompany.atlassian.net"
-        />
+        <Suspense fallback={<Spinner className="size-6" />}>
+          <DomainInput />
+        </Suspense>
 
         <H3>Email:</H3>
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onBlur={handleEmailBlur}
-          placeholder="Enter your email"
-        />
+        <Suspense fallback={<Spinner className="size-6" />}>
+          <EmailInput />
+        </Suspense>
 
         <H3>Search Query:</H3>
-        <Textarea
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onBlur={handleSearchQueryBlur}
-          placeholder="Enter your search query"
-        />
+        <Suspense fallback={<Spinner className="size-6" />}>
+          <SearchQueryInput />
+        </Suspense>
 
         <div className="flex items-center gap-2">
           <H3>Query Polling (seconds):</H3>
-          <Checkbox
-            checked={enablePolling}
-            onCheckedChange={handleEnablePollingChange}
-          />
+          <Suspense fallback={<Spinner className="size-6" />}>
+            <EnablePollingCheckbox />
+          </Suspense>
         </div>
-        <Input
-          type="number"
-          value={queryPolling}
-          onChange={(e) => setQueryPolling(e.target.value)}
-          onBlur={handleQueryPollingBlur}
-          placeholder="Enter polling interval in seconds"
-        />
+        <Suspense fallback={<Spinner className="size-6" />}>
+          <QueryPollingInput />
+        </Suspense>
       </div>
     </div>
   );
